@@ -1,3 +1,6 @@
+
+require('dotenv').config();
+
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const session = require('express-session');
@@ -6,7 +9,8 @@ const mongoose = require('mongoose');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SECRET_KEY = 'your_secret_key';
+const SECRET_KEY = process.env.SECRET_KEY;
+
 
 mongoose.set('strictQuery', false);
 
@@ -23,21 +27,43 @@ app.use(session({ secret: SECRET_KEY, resave: false, saveUninitialized: true, co
 
 
 // Insert your authenticateJWT Function code here.
+function authenticateJWT(req, res, next) {
+    // Get token from session
+    const token = req.session.token;
+
+    // If no token, return 401 Unauthorized
+    if (!token) return res.status(401).json({ message: 'Unauthorized' });
+
+    try {
+        // Verify token
+        const decoded = jwt.verify(token, SECRET_KEY);
+
+        // Attach user data to request
+        req.user = decoded;
+
+        // Continue to the next middleware
+        next();
+    } catch (error) {
+        // If invalid token, return 401
+        return res.status(401).json({ message: 'Invalid token' });
+    }
+}
 
 // Insert your requireAuth Function code here.
+function requireAuth(req, res, next) {
+    const token = req.session.token;  // Retrieve token from session
 
-// Insert your routing HTML code here.
+    if (!token) return res.redirect('/login');  // If no token, redirect to login page
 
-// Insert your user registration code here.
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);  // Verify the token using the secret key
+        req.user = decoded;  // Attach decoded user data to the request
+        next();  // Pass control to the next middleware/route
+    } catch (error) {
+        return res.redirect('/login');  // If token is invalid, redirect to login page
+    }
+}
 
-// Insert your user login code here.
 
-// Insert your post creation code here.
-
-// Insert your post updation code here.
-
-// Insert your post deletion code here.
-
-// Insert your user logout code here.
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
