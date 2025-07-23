@@ -14,12 +14,14 @@ const SECRET_KEY = process.env.SECRET_KEY;
 
 mongoose.set('strictQuery', false);
 
+// For local development
 //const uri = "mongodb://localhost:27017";
+//const uri = "mongodb://belvi:belvi123@localhost:27017/SocialDB";
 
-// To deploy app
-const uri =  "mongodb://mongodb:27017";
+// For Docker deployment
+const uri = "mongodb://mongodb:27017";
 
-mongoose.connect(uri,{'dbName':'SocialDB'});
+mongoose.connect(uri, { dbName: 'SocialDB' });
 
 const User = mongoose.model('User', { username: String, email: String, password: String });
 const Post = mongoose.model('Post', { userId: mongoose.Schema.Types.ObjectId, text: String });
@@ -94,9 +96,14 @@ app.post('/register', async (req, res) => {
             SECRET_KEY, { expiresIn: '1h' });
         req.session.token = token;
 
-        // Respond with success message
-        // res.send({"message":`The user ${username} has been added`});
-        res.redirect(`/index?username=${newUser.username}`);
+        // Check if the request is from API (has Content-Type: application/json)
+        if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+            // Return JSON response for API requests
+            return res.status(201).json({ message: `The user ${username} has been added`, token, userId: newUser._id });
+        } else {
+            // Redirect for browser requests
+            return res.redirect(`/index?username=${newUser.username}`);
+        }
     } catch (error) {
         console.error(error);
         // Handle server errors
@@ -118,9 +125,14 @@ app.post('/login', async (req, res) => {
         const token = jwt.sign({ userId: user._id, username: user.username }, SECRET_KEY, { expiresIn: '1h' });
         req.session.token = token;
 
-        // Respond with a success message
-        //res.send({"message":`${user.username} has logged in`});
-        res.redirect(`/index?username=${user.username}`);
+        // Check if the request is from API (has Content-Type: application/json)
+        if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+            // Return JSON response for API requests
+            return res.json({ message: `${user.username} has logged in`, token, userId: user._id });
+        } else {
+            // Redirect for browser requests
+            return res.redirect(`/index?username=${user.username}`);
+        }
     } catch (error) {
         console.error(error);
         // Handle server errors

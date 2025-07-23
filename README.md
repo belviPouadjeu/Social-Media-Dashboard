@@ -20,6 +20,21 @@ mongoose.connect(uri, { dbName: 'SocialDB' });
 ```bash
 docker build . -t socialapp
 ```
+## Second image 
+```bash
+docker build -t belvinard/socialapp:v2 .
+```
+
+docker build . -t socialapp2
+docker tag 69a5582791bf belvinard/socialapp:v2
+docker run -d -p 3000:3000 --name socialapp2-container socialapp2
+docker push belvinard/socialapp:v2
+
+### If your app needs to connect to MongoDB
+docker run -d --name mongodb -p 27017:27017 mongo
+
+
+
 > The docker-compose.yml has been created to run two containers, one for Mongo and the other for the Node app. Run the following command to run the server:
 
 ```bash

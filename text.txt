@@ -2,3 +2,13 @@ Invoke-RestMethod -Uri http://localhost:3000/login `
   -Method Post `
   -Headers @{ "Content-Type" = "application/json" } `
   -Body '{"username":"coopercoote","email":"ccoote@gmail.com","password":"cg123"}'
+
+
+db.createUser({
+    user: "myUser",
+    pwd: "myPassword",
+    roles: [{ role: "readWrite", db: "SocialDB" }]
+});
+
+const uri = "mongodb://myUser:myPassword@localhost:27017/SocialDB";
+
