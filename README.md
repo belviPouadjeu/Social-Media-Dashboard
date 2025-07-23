@@ -17,11 +17,26 @@ mongoose.connect(uri, { dbName: 'SocialDB' });
 
 ### Run the following code
 
-```batch
+```bash
 docker build . -t socialapp
 ```
 > The docker-compose.yml has been created to run two containers, one for Mongo and the other for the Node app. Run the following command to run the server:
 
-```batch
-docker-compose up
+```bash
+docker-compose up -d
+```
+```bash
+docker login
+docker tag socialapp:latest belvinard/socialapp:latest
+docker push belvinard/socialapp:latest
+```
+
+##  Run Locally Built Image
+```bash
+docker run -p 3000:3000 socialapp:latest
+```
+
+##  Run from Docker Hub
+```bash
+docker run -p 3000:3000 belvinard/socialapp:latest
 ```
