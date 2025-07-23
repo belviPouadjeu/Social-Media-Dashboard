@@ -96,14 +96,8 @@ app.post('/register', async (req, res) => {
             SECRET_KEY, { expiresIn: '1h' });
         req.session.token = token;
 
-        // Check if the request is from API (has Content-Type: application/json)
-        if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
-            // Return JSON response for API requests
-            return res.status(201).json({ message: `The user ${username} has been added`, token, userId: newUser._id });
-        } else {
-            // Redirect for browser requests
-            return res.redirect(`/index?username=${newUser.username}`);
-        }
+        // Redirect to index page with username
+        return res.redirect(`/index?username=${newUser.username}`);
     } catch (error) {
         console.error(error);
         // Handle server errors

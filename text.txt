@@ -24,4 +24,73 @@ logout
 
 Invoke-RestMethod -Uri http://localhost:3000/logout -Method Get -Headers @{ "Content-Type" = "application/json" }
 
+res.redirect(`index?username=${newUser.username}`);
 
+$response = Invoke-WebRequest -Uri "http://localhost:3000/login" -Method Post -Body @{
+    username = "Zambo"
+    password = "zambo123"
+} -SessionVariable session
+
+Invoke-WebRequest -Uri "http://localhost:3000/index?username=coopercoote" -WebSession $session
+
+
+# Register a new user with JSON content type (API request)
+Invoke-RestMethod -Uri http://localhost:3000/register `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"username":"zambo","email":"zambo@example.com","password":"zambo123"}'
+
+
+Copy and paste the output of the following command used to loging your registered credentials
+Invoke-RestMethod -Uri http://localhost:3000/login `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"username":"coopercoote","password":"cg123"}' | ConvertTo-Json
+
+
+try {
+    Invoke-RestMethod -Uri http://localhost:3000/login `
+      -Method Post `
+      -Headers @{ "Content-Type" = "application/json" } `
+      -Body '{"username":"coopercoote","password":"incorrect_password_here"}' `
+      -ErrorAction Stop | ConvertTo-Json
+} catch {
+    $_.ErrorDetails.Message
+}
+
+
+Copy and paste the user registration code below, after replacing the success JSON ressponse with the es.redirect(`/index/?username=${newUser,username}`);
+
+Invoke-RestMethod -Uri http://localhost:3000/register`
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"username":"coopercoot","email":"ccoot@gmail.com","password":"errg123"}'
+
+
+
+app.post('/register', async (req, res) => {
+    const { username, email, password } = req.body;
+
+    try {
+        // Check if the user already exists
+        const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+
+        if (existingUser) return res.status(400).json({ message: 'User already exists' });
+
+        // Create and save the new user
+        const newUser = new User({ username, email, password });
+        await newUser.save();
+
+        // Generate JWT token and store in session
+        const token = jwt.sign({ userId: newUser._id, username: newUser.username },
+            SECRET_KEY, { expiresIn: '1h' });
+        req.session.token = token;
+
+        // Redirect to index page with username
+        return res.redirect(`/index?username=${newUser.username}`);
+    } catch (error) {
+        console.error(error);
+        // Handle server errors
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
