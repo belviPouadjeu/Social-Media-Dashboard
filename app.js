@@ -72,4 +72,30 @@ app.get('/login', (req, res) => res.sendFile(path.join(__dirname, 'public', 'log
 app.get('/post', requireAuth, (req, res) => res.sendFile(path.join(__dirname, 'public', 'post.html')));
 app.get('/index', requireAuth, (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html'), { username: req.user.username }));
 
+// Insert your user registration code here.
+app.post('/register', async (req, res) => {
+    const { username, email, password } = req.body;
+
+    try {
+        // Check if the user already exists
+        const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+
+        if (existingUser) return res.status(400).json({ message: 'User already exists' });
+
+        // Create and save the new user
+        const newUser = new User({ username, email, password });
+        await newUser.save();
+
+        // Generate JWT token and store in session
+        const token = jwt.sign({ userId: newUser._id, username: newUser.username }, SECRET_KEY, { expiresIn: '1h' });
+        req.session.token = token;
+
+        // Respond with success message
+        res.send({"message":`The user ${username} has been added`});
+    } catch (error) {
+        console.error(error);
+        // Handle server errors
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
