@@ -14,7 +14,10 @@ const SECRET_KEY = process.env.SECRET_KEY;
 
 mongoose.set('strictQuery', false);
 
-const uri = "mongodb://localhost:27017";
+//const uri = "mongodb://localhost:27017";
+
+// To deploy app
+const uri =  "mongodb://mongodb:27017";
 
 mongoose.connect(uri,{'dbName':'SocialDB'});
 

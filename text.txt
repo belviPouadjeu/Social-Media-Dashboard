@@ -1,0 +1,4 @@
+Invoke-RestMethod -Uri http://localhost:3000/login `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"username":"coopercoote","email":"ccoote@gmail.com","password":"cg123"}'
