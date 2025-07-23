@@ -153,4 +153,28 @@ app.get('/posts', authenticateJWT, async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 });
+
+// Insert your post updation code here.
+
+app.put('/posts/:postId', authenticateJWT, async (req, res) => {
+    const postId = req.params.postId;
+    const { text } = req.body;
+
+    try {
+        // Find and update the post, ensuring it's owned by the authenticated user
+        const post = await Post.findOneAndUpdate(
+            { _id: postId, userId: req.user.userId },
+            { text },
+            { new: true } // Return updated post
+        );
+
+        // Return error if post not found
+        if (!post) return res.status(404).json({ message: 'Post not found' });
+
+        res.json({ message: 'Post updated successfully', updatedPost: post });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
