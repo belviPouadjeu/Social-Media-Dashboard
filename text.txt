@@ -12,3 +12,16 @@ db.createUser({
 
 const uri = "mongodb://myUser:myPassword@localhost:27017/SocialDB";
 
+
+Invoke-RestMethod -Uri http://localhost:3000/login `
+  -Method Post `
+  -Headers @{ "Content-Type" = "application/json" } `
+  -Body '{"username":"coopercoote","password":"cg123"}'
+
+
+
+logout
+
+Invoke-RestMethod -Uri http://localhost:3000/logout -Method Get -Headers @{ "Content-Type" = "application/json" }
+
+

@@ -218,7 +218,24 @@ app.delete('/posts/:postId', authenticateJWT, async (req, res) => {
 app.get('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) console.error(err); // Log any session destruction errors
-        res.redirect('/login'); // Redirect to login page after logout
+        
+        // Check if the request is from API (has Accept or Content-Type: application/json)
+        if ((req.headers['accept'] && req.headers['accept'].includes('application/json')) ||
+            (req.headers['content-type'] && req.headers['content-type'].includes('application/json'))) {
+            // Return JSON response for API requests
+            return res.json({ message: 'Logged out successfully' });
+        } else {
+            // Redirect for browser requests
+            return res.redirect('/login'); // Redirect to login page after logout
+        }
+    });
+});
+
+// Add a POST endpoint for logout to support API clients that prefer POST for logout
+app.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) console.error(err); // Log any session destruction errors
+        return res.json({ message: 'Logged out successfully' });
     });
 });
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
